@@ -11,8 +11,7 @@ import scene from './scene';
 import { Water } from 'three/examples/jsm/objects/Water.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { particleSystemGenerator } from './utils/particleSystem/particleSystem';
-import FakeGlowMaterial from './utils/particleSystem/glowMaterial';
+import { particleSystemGenerator } from './utils/particleSystem';
 import {
   smokeEmitterMesh1,
   smokeEmitterMesh2,
@@ -20,58 +19,54 @@ import {
   smokeEmitterMesh4,
   smokeEmitterMesh5,
 } from './components/smokeEmitters';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 // Register ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Camera
- */
+// === CAMERA SETUP ===
 const camera = generatePerspectiveCamera(sizes);
 scene.add(camera);
 
-/**
- * Controls
- */
-// to make orbit control work remove z index from canvas
+// === CONTROLS SETUP ===
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0, 0);
 controls.enableDamping = true;
 
-/**
- * Renderer
- */
+// === RENDERER SETUP ===
 const renderer = generateRenderer(canvas, sizes);
+renderer.toneMapping = THREE.CineonToneMapping;
+renderer.toneMappingExposure = 0.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// Texture loader
+// === TEXTURE AND MODEL LOADING ===
 const textureLoader = new THREE.TextureLoader();
 const dracoLoader = new DRACOLoader();
-
-dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // or your local path
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
-// Load the GLB file
+
+// Load GLTF Model
 gltfLoader.load(
   '/models/scene-compressed.gltf',
   (gltf) => {
     const model = gltf.scene;
     model.castShadow = true;
     model.position.set(-15, -1, -200);
-
     scene.add(model);
   },
-  (xhr) => {
-    console.log(`${((xhr.loaded / xhr.total) * 100).toFixed(2)}% loaded`);
-  },
-  (error) => {
-    console.error('An error occurred while loading the GLB file:', error);
-  }
+  (xhr) =>
+    // console.log(`${((xhr.loaded / xhr.total) * 100).toFixed(2)}% loaded`),
+    (error) =>
+      console.error('Error loading GLTF:', error)
 );
 
-/**
- * smoke emitters
- */
+// === SMOKE EMITTERS ===
 scene.add(
   smokeEmitterMesh1,
   smokeEmitterMesh2,
@@ -80,40 +75,32 @@ scene.add(
   smokeEmitterMesh5
 );
 
-/**
- * Sun and lights
- */
+// === SUN AND LIGHTS ===
+scene.add(ambientLight, directionalLight);
 
-scene.add(ambientLight);
-scene.add(directionalLight);
-
-// Create a Sun mesh
-
-const sunGeometry = new THREE.SphereGeometry(150, 32, 32);
-const fakeGlowMaterial = new FakeGlowMaterial({
-  glowColor: 0xffa500,
-  glowInternalRadius: 0.8,
-  opacity: 1,
-  side: THREE.DoubleSide,
+// Create Sun Mesh
+const sunGeometry = new THREE.SphereGeometry(40, 32, 32);
+const sunMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffcc33,
+  emissive: 0xffa500,
+  emissiveIntensity: 1.5,
 });
-const sun = new THREE.Mesh(sunGeometry, fakeGlowMaterial);
-sun.position.z = 200;
-sun.position.y = -152;
+const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+sun.position.set(0, -152, 300);
 
-// Create a Point Light that will follow the Sun
+scene.add(sun);
+
+// Create Sun Light
 const sunLight = new THREE.PointLight(0xffdf00, 50, 50);
 sunLight.castShadow = true;
-
+scene.add(sunLight);
+// Update Sun Light position to follow the Sun
 const updateLightPosition = () => {
   sunLight.position.copy(sun.position);
   directionalLight.position.copy(sun.position);
 };
 
-scene.add(sunLight, sun);
-
-/**
- * Water
- */
+// === WATER ===
 const waterNormals = textureLoader.load(
   'https://threejs.org/examples/textures/waternormals.jpg',
   (texture) => {
@@ -136,10 +123,7 @@ water.rotation.x = -Math.PI / 2;
 water.position.y = -3;
 scene.add(water);
 
-/**
- * smoke
- */
-
+// === SMOKE SYSTEM ===
 const smokeEffect = particleSystemGenerator({
   camera,
   emitters: [
@@ -154,28 +138,130 @@ const smokeEffect = particleSystemGenerator({
   texture: '/smoke.png',
 });
 
-/**
- * GSAP Animation Timeline with ScrollTrigger
- */
+// === GSAP ANIMATIONS ===
 const tl = gsap.timeline({
   scrollTrigger: {
     trigger: document.querySelector('.section1'),
     start: 'top top',
-    end: '+=200%', // Extends scroll area for slower progression
-    scrub: 1,
+    end: '+=200%',
+    scrub: 2,
     pin: true,
   },
   onComplete: () => console.log('complete'),
   onReverseComplete: () => console.log('reversed complete'),
 });
 
-tl.to(camera.position, { y: 50, z: -300, duration: 10 });
-tl.to(sun.position, { y: 50, duration: 1 }, '<'); // "<" syncs with the previous animation
-tl.to(camera.position, { x: -150, z: -300, duration: 1 });
+tl.to(camera.position, { y: 50, z: -300, duration: 1 });
+tl.to(renderer, { toneMappingExposure: 0.1, duration: 1 }, '<'); // "<" syncs with the previous animation
+tl.to(sun.position, { y: 50, duration: 1 }, '<');
+tl.to(camera.position, { x: -157, z: -325, duration: 1 });
+tl.to(camera.rotation, { y: -0.46, duration: 1 }, '<');
 
-/**
- * Resize
- */
+// === POSTPROCESSING WITH SELECTIVE BLOOM ===
+const composer = new EffectComposer(renderer);
+
+// RenderPass: Renders the full scene
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// BloomPass: Applies bloom effect to objects in BLOOM_LAYER
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.8, // strength
+  0.5, // radius
+  0.3 // threshold
+);
+composer.addPass(bloomPass);
+
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
+
+const mixPass = new ShaderPass(
+  new THREE.ShaderMaterial({
+    uniforms: {
+      baseTexture: { value: null },
+      bloomTexture: { value: composer.renderTarget2.texture },
+    },
+    vertexShader: document.getElementById('vertexshader').textContent,
+    fragmentShader: document.getElementById('fragmentshader').textContent,
+  }),
+  'baseTexture'
+);
+
+const finalComposer = new EffectComposer(renderer);
+finalComposer.addPass(renderPass);
+finalComposer.addPass(mixPass);
+finalComposer.addPass(outputPass);
+
+// layers
+const BLOOM_LAYER = 1; // Layer for selective bloom
+const bloomLayer = new THREE.Layers();
+bloomLayer.set(BLOOM_LAYER);
+const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+const materials = {};
+
+const nonBloomed = (obj) => {
+  if (obj.isMesh && bloomLayer.test(obj.layers) === false) {
+    materials[obj.uuid] = obj.material;
+    obj.material = darkMaterial;
+  }
+};
+
+const restoreMaterial = (obj) => {
+  if (materials[obj.uuid]) {
+    obj.material = materials[obj.uuid];
+    delete materials[obj.uuid];
+  }
+};
+
+// const raycaster = new THREE.Raycaster();
+// const mouse = new THREE.Vector2();
+
+// const onPointerDown = (event) => {
+//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+//   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+//   raycaster.setFromCamera(mouse, camera);
+//   const intersects = raycaster.intersectObjects(scene.children, false);
+//   if (intersects.length > 0) {
+//     const object = intersects[0].object;
+//     object.layers.toggle(BLOOM_LAYER);
+//   }
+// };
+
+// window.addEventListener('pointerdown', onPointerDown);
+
+sun.layers.enable(BLOOM_LAYER);
+
+// === MAIN ANIMATION LOOP ===
+const clock = new THREE.Clock();
+let previousTime = 0;
+
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime();
+  const deltaTime = elapsedTime - previousTime;
+  previousTime = elapsedTime;
+
+  // Update positions and effects
+  updateLightPosition();
+  smokeEffect?.update(deltaTime);
+  mixer?.update(deltaTime);
+
+  water.material.uniforms['time'].value += deltaTime / 10;
+
+  // Render bloom layer separately
+  scene.traverse(nonBloomed);
+  composer.render();
+
+  scene.traverse(restoreMaterial);
+  finalComposer.render();
+
+  requestAnimationFrame(tick);
+};
+
+tick();
+
+// === RESIZE EVENT ===
 window.addEventListener('resize', () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
@@ -185,50 +271,9 @@ window.addEventListener('resize', () => {
 
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  composer.setSize(sizes.width, sizes.height);
+  finalComposer.setSize(sizes.width, sizes.height);
 });
 
-/**
- * Animate
- */
-const clock = new THREE.Clock();
-let previousTime = 0;
-
-const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime;
-  previousTime = elapsedTime;
-
-  // sunlight follows sun
-  updateLightPosition();
-
-  // update smoke
-  smokeEffect?.update(0.016);
-
-  // Update mixer
-  mixer && mixer.update(deltaTime);
-
-  // Update water material (for wave movement)
-  water.material.uniforms['time'].value += deltaTime / 10;
-
-  // Update controls only if they are enabled
-  if (controls.enabled) {
-    controls.update();
-  }
-
-  renderer.render(scene, camera);
-
-  requestAnimationFrame(tick);
-};
-
-tick();
-
-lilgui(
-  camera,
-  sun,
-  smokeEmitterMesh1,
-  smokeEmitterMesh2,
-  smokeEmitterMesh3,
-  smokeEmitterMesh4,
-  smokeEmitterMesh5,
-  directionalLight
-);
+// === DEBUG UI ===
+lilgui(camera, sun);

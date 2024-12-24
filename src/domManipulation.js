@@ -1,5 +1,5 @@
 // Select the element you want to observe
-const mainTitle = document.querySelector('.main-title');
+const mainTitle = document.querySelector('.sant-adria-title');
 const mainSubtitle = document.querySelector('.main-subtitle');
 const section2 = document.querySelector('.section2');
 const rainCanvas = document.querySelector('.rainCanvas');
@@ -9,9 +9,8 @@ const section2Observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        console.log(entry.intersectionRatio);
         console.log('intersecting');
-        mainTitle.classList.add('main-title--fixed');
+        mainTitle.classList.add('sant-adria-title--fixed');
         mainSubtitle.classList.add('main-subtitle--fixed');
         rainCanvas.classList.add('rainCanvas--show');
       } else {

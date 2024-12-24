@@ -5,9 +5,8 @@ export const generatePerspectiveCamera = (sizes) => {
     50,
     sizes.width / sizes.height,
     0.1,
-    700
+    1000
   );
-  // camera.position.set(-56, 8, -90);
 
   camera.position.set(0, 4, -25);
 

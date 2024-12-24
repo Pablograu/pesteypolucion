@@ -2,7 +2,6 @@ import * as THREE from 'three';
 
 const smokeEmitterGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 const smokeEmitterMaterial = new THREE.MeshStandardMaterial({
-  // color: 0xf3f70a,
   transparent: true,
   opacity: 0.01,
 });

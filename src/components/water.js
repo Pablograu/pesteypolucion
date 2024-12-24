@@ -19,7 +19,7 @@ const water = new Water(waterGeometry, {
   textureHeight: 512,
   waterNormals: waterNormals,
   sunDirection: new THREE.Vector3(1, 1, 1),
-  sunColor: 0xfff000,
+  sunColor: 0xffffff,
   waterColor: 0x0077ff,
   distortionScale: 3.7,
 

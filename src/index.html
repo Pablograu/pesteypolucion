@@ -14,9 +14,13 @@
     </section>
     <canvas class="webgl"></canvas>
     <section class="section2">
-        <h1 class="main-title">
-            <span>S</span><span>A</span><span>N</span><span>T</span>
-            <span>A</span><span>D</span><span>R</span><span>I</span><span>À</span>
+        <h1 class="sant-adria-title">
+            <div class="sant">
+                <span>S</span><span>A</span><span>N</span><span>T</span>
+            </div>
+            <div class="adria">
+                <span>A</span><span>D</span><span>R</span><span>I</span><span>A</span>
+            </div>
         </h1>
 
         <p class="main-subtitle">PESTE Y POLUCIÓN</p>
@@ -68,9 +72,23 @@
     <section class="section5">
         <h3> <span>BASTA</span> DE SER EL <span> ESTERCOLERO </span> DE <span>BARCELONA</span></h3>
     </section>
-
+    <script id="vertexshader" type="vertex">
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+    <script id="fragmentshader" type="fragment">
+        uniform sampler2D baseTexture;
+        uniform sampler2D bloomTexture;
+        varying vec2 vUv;
+        void main() {
+            gl_FragColor = (texture2D(baseTexture, vUv) + vec4(1.0) * texture2D(bloomTexture, vUv));
+        }
+    </script>
     <script type="module" src="./script.js"></script>
-    <script type="module" src="./rain.js"></script>
+    <script type="module" src="./components/rain.js"></script>
     <script type="module" src="./domManipulation.js"></script>
 </body>
 

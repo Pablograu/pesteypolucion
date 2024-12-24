@@ -4,7 +4,7 @@
 }
 
 .lil-gui {
-  display: none !important;
+  /* display: none !important; */
 }
 
 html,
@@ -51,6 +51,18 @@ section {
 .section1 {
   height: 100vh;
   z-index: 1;
+}
+
+.section2 {
+  padding: 0;
+  position: relative;
+}
+
+.sant,
+.adria {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .section3 {
@@ -110,12 +122,12 @@ section {
   padding: 1.5rem 0;
 }
 
-.main-title {
+.sant-adria-title {
   opacity: 0;
   transition: all 1s;
   text-align: center;
-  font-size: 15vw;
-  transform: scaleY(4.5);
+  font-size: 100px;
+  transform: scaleY(2.5);
 }
 
 .main-subtitle {
@@ -145,7 +157,7 @@ section {
   z-index: -1;
 }
 
-.main-title--fixed {
+.sant-adria-title--fixed {
   opacity: 1;
 }
 
