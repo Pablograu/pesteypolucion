@@ -4,12 +4,13 @@
 }
 
 .lil-gui {
-  /* display: none !important; */
+  display: none !important;
 }
 
 html,
 body {
   font-family: 'Helvetica Neue', sans-serif;
+  overflow-x: hidden;
 }
 
 .rainCanvas {
