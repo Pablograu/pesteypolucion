@@ -1,4 +1,4 @@
-const canvas = document.querySelector('.rainCanvas');
+const canvas = document.querySelector('.rain-canvas');
 const ctx = canvas.getContext('2d');
 
 // Resize canvas to fit the window

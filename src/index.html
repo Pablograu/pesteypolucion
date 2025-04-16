@@ -4,73 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Sant Adria</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-    <canvas class="rainCanvas"></canvas>
+    <div id="loading-modal">
+        <p id="progress-text"></p>
+    </div>
+    <canvas class="rain-canvas"></canvas>
     <section class="section1">
     </section>
     <canvas class="webgl"></canvas>
-    <section class="section2">
-        <h1 class="sant-adria-title">
-            <div class="sant">
+    <section class="text-section">
+        <h1 class="title">
+            <div class="title-wrapper1">
                 <span>S</span><span>A</span><span>N</span><span>T</span>
             </div>
-            <div class="adria">
-                <span>A</span><span>D</span><span>R</span><span>I</span><span>A</span>
+            <div class="title-wrapper2">
+                <span>A</span><span>D</span><span>R</span><span>I</span><span>À</span>
             </div>
         </h1>
-
-        <p class="main-subtitle">PESTE Y POLUCIÓN</p>
+        <p class="subtitle">PESTE Y POLUCIÓN</p>
+    </section>
+    <section class="section2">
+        <h2 class="section-title">SIMPLE GOOGLE SEARCH</h2>
     </section>
     <section class="section3">
-        <h2 class="section-title">SIMPLE GOOGLE SEARCH</h2>
-        <div class="section3-image-wrapper">
-            <img src="img/articles.png" alt="articlos">
-        </div>
-    </section>
-    <section class="section4">
-        <header class="article-header">
-            <h1 class="section-title">El Caso Tersa</h1>
-            <p class="credits">Basado en un <a
+        <header class="section-header">
+            <h1 class="article-title">El Caso Tersa</h1>
+            <p class="article-source">Basado en un <a
                     href="https://www.elperiodico.com/es/barcelona/20241031/caso-tersa-investigacion-contaminacion-incineradora-86835833">artículo
                     de J. G. Albalat y Jordi Ribalaygue para El Periódico</a></p>
         </header>
         <div class="article-content">
-            <h2>1. Acusaciones ambientales</h2>
-            <p>La Fiscalía y Guardia Civil acusan a Tersa de operar por debajo de la temperatura requerida, provocando
-                <span class="highlighted-text">emisiones de sustancias tóxicas</span>. La empresa se defiende afirmando
-                que cumple con la normativa.
-            </p>
-
-            <h2>2. Reapertura del caso</h2>
-            <p>La Audiencia de Barcelona ha reabierto el caso contra la incineradora Tersa en Sant Adrià de Besòs, que
-                podría llegar al Tribunal Supremo.</p>
-
-            <h2>3. Responsables investigados</h2>
-            <p>El exconcejal Eloi Badia y el jefe de operaciones de Tersa son <span
-                    class="highlighted-text">investigados</span> por posibles fallos en la
-                gestión de emisiones contaminantes.</p>
-
-            <h2>4. Posible impacto en la salud</h2>
-            <p>Estudios citados apuntan a que la zona cercana a la incineradora tiene altos niveles de <span
-                    class="highlighted-text">sustancias
-                    tóxicas</span>, relacionadas con mayores riesgos de cáncer y problemas de salud.</p>
-
-            <h2>5. Futuro de la incineradora</h2>
-            <p>El Ayuntamiento de Sant Adrià propone trasladar la planta a una zona menos poblada para 2050, debido a
-                <span class="highlighted-text">riesgos ambientales y de salud</span>.
-            </p>
+            <div class="article-item">
+                <h2 class="article-subtitle">1. Acusaciones ambientales</h2>
+                <p class="article-text">La Fiscalía y Guardia Civil acusan a Tersa de operar por debajo de la
+                    temperatura
+                    requerida, provocando
+                    <span class="highlight">emisiones de sustancias tóxicas</span>. La empresa se defiende afirmando
+                    que cumple con la normativa.
+                </p>
+            </div>
+            <div class="article-item">
+                <h2 class="article-subtitle">2. Reapertura del caso</h2>
+                <p class="article-text">La Audiencia de Barcelona ha reabierto el caso contra la incineradora Tersa en
+                    Sant Adrià de Besòs, que
+                    podría llegar al Tribunal Supremo.</p>
+            </div>
+            <div class="article-item">
+                <h2 class="article-subtitle">3. Responsables investigados</h2>
+                <p class="article-text">El exconcejal Eloi Badia y el jefe de operaciones de Tersa son <span
+                        class="highlight">investigados</span> por posibles
+                    fallos en la gestión de emisiones contaminantes.</p>
+            </div>
+            <div class="article-item">
+                <h2 class="article-subtitle">4. Posible impacto en la salud</h2>
+                <p class="article-text">Estudios citados apuntan a que la zona cercana a la incineradora tiene altos
+                    niveles de <span class="highlight">sustancias tóxicas</span>, relacionadas con mayores riesgos de
+                    cáncer y problemas de salud.</p>
+            </div>
+            <div class="article-item">
+                <h2 class="article-subtitle">5. Futuro de la incineradora</h2>
+                <p class="article-text">El Ayuntamiento de Sant Adrià propone trasladar la planta a una zona menos
+                    poblada para 2050, debido a
+                    <span class="highlight">riesgos ambientales y de salud</span>.
+                </p>
+            </div>
         </div>
-        <iframe class="videoIframe" src="https://www.youtube.com/embed/8FhUdZrsSdQ?si=nOUobqdhBJjgZSL9"
-            title="YouTube video player" frameborder="0"
+        <iframe src="https://www.youtube.com/embed/8FhUdZrsSdQ?si=nOUobqdhBJjgZSL9" title="YouTube video player"
+            frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
-    <section class="section5">
-        <h3> <span>BASTA</span> DE SER EL <span> ESTERCOLERO </span> DE <span>BARCELONA</span></h3>
+    <section class="section4">
+        <h3 class="final-message"><span>BASTA</span> DE SER<span> UNA</span> CIUDAD <span>ESTERCOLERO</span></h3>
+        <br>
+        <h4>QUIERES AYUDAR? COLABORA CON <a href="https://www.airenet.eu">AIRENET</a></h4>
+
     </section>
     <script id="vertexshader" type="vertex">
         varying vec2 vUv;
@@ -89,7 +101,7 @@
     </script>
     <script type="module" src="./script.js"></script>
     <script type="module" src="./components/rain.js"></script>
-    <script type="module" src="./domManipulation.js"></script>
+    <script type="module" src="./gsapAnimations.js"></script>
 </body>
 
 </html>

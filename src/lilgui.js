@@ -2,7 +2,19 @@ import GUI from 'lil-gui';
 
 const gui = new GUI();
 
-export const lilgui = (camera, sun) => {
+export const lilgui = (camera, sun, hemisphereLight) => {
+  // Ambient Light lil-gui
+  const hemisphereLightFolder = gui.addFolder('hemisphereLight');
+  hemisphereLightFolder
+    .add(hemisphereLight.position, 'x', -300, 300)
+    .name('Position X');
+  hemisphereLightFolder
+    .add(hemisphereLight.position, 'y', -300, 300)
+    .name('Position Y');
+  hemisphereLightFolder
+    .add(hemisphereLight.position, 'z', -300, 300)
+    .name('Position Z');
+  hemisphereLightFolder.close();
   // Camera lil-gui
   const cameraFolder = gui.addFolder('Camera');
   cameraFolder.add(camera.position, 'x', -500, 500, 1).name('Position X');

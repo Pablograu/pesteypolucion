@@ -11,7 +11,7 @@ const body = document.querySelector('body');
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl');
-
+console.log('canvas', canvas);
 // mixer
 let mixer = null;
 
