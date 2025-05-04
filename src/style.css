@@ -55,6 +55,29 @@ a:hover::after {
   width: 100%;
 }
 
+/* Define the oscillate animation globally */
+@keyframes oscillate {
+  0% {
+    transform: translate(-50%, -50%) translateY(-10px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(10px);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(-10px);
+  }
+}
+
+/* Apply the animation to .scroll-tip */
+.scroll-tip {
+  color: var(--color-light);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: oscillate 2s ease-in-out infinite;
+}
+
 /* Canvas Styles */
 .webgl {
   position: fixed;
