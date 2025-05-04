@@ -291,13 +291,11 @@ const animateSection4 = () => {
   // Function to split text into spans for animation
   const splitTextIntoSpans = (selector) => {
     const element = document.querySelector(selector);
-    if (!element) return; // Guard clause to prevent errors
-
     const text = element.textContent;
     element.innerHTML = text
       .split('')
       .map((char) =>
-        char === 'e'
+        char === 'e' || char === 'c'
           ? `<br><span class="char">${char.toUpperCase()}</span>`
           : `<span class="char">${char === ' ' ? '&nbsp;' : char}</span>`
       )
