@@ -18,7 +18,7 @@ sphereGeometry.rotateY(Math.PI / 2); // Rotate 85 degrees around the Y axis
 // Load the HDR environment map
 const rgbeLoader = new RGBELoader();
 rgbeLoader.load(
-  '/sky.hdr',
+  '/sky_high_contrast.hdr',
   (texture) => {
     // Set texture properties
     texture.mapping = EquirectangularReflectionMapping;

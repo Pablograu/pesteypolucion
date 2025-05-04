@@ -1,0 +1,1 @@
+1. la animacion del texto del articulo esta rara. hay que debugar

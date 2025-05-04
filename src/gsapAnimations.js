@@ -1,9 +1,15 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
+import camera from './camera';
+import renderer from './renderer';
+import sun from './meshes/sun';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+// Create master timeline
+const masterTimeline = gsap.timeline();
 
 // Loading animation
 const loadingAnimation = () => {
@@ -24,50 +30,31 @@ const loadingAnimation = () => {
   return tl;
 };
 
-// Initialize main timeline
-const mainTimeline = gsap.timeline();
-mainTimeline.add(loadingAnimation());
+// Add loading animation to master timeline
+masterTimeline.add(loadingAnimation());
 
 // Rain animation enhancement
 const enhanceRain = () => {
-  gsap.to('.rain-canvas', {
+  const rainTl = gsap.timeline();
+
+  rainTl.to('.rain-canvas', {
     opacity: 0.4,
     duration: 2,
     ease: 'power2.inOut',
-    delay: 3,
   });
+
+  return rainTl;
 };
-enhanceRain();
 
-// Existing section1 animation (not modified as requested)
-gsap.from('.section1', { opacity: 0, duration: 1, delay: 0.5 });
+// Add rain animation to master timeline
+masterTimeline.add(enhanceRain(), '+=1'); // Add a slight delay after loading
 
-// Text section animations
-const animateTextSection = () => {
+const animateSection1 = () => {
   const titleLetters = gsap.utils.toArray('.title div span');
   // Create a stagger effect with custom transformations
   gsap.set(titleLetters, {
     y: 120,
     opacity: 0,
-  });
-
-  gsap.to(titleLetters, {
-    y: 20,
-    opacity: 1,
-    duration: 3.2,
-    stagger: 0.1,
-    ease: 'back.out(1.2)',
-    delay: 0.5,
-    scrollTrigger: {
-      trigger: '.text-section',
-      start: 'top 50%',
-      end: 'bottom 20%',
-      toggleActions: 'play reset play reset',
-      markers: true,
-    },
-    onStart: () => {
-      console.log('Text animation started');
-    },
   });
 
   // Subtitle animation with glow effect
@@ -77,14 +64,48 @@ const animateTextSection = () => {
     scale: 0.9,
   });
 
-  const subtitleTimeline = gsap.timeline({ delay: 3.5 });
-  subtitleTimeline
-    .to('.subtitle', {
-      opacity: 1,
-      y: 0,
-      duration: 1.5,
-      ease: 'elastic.out(1, 0.5)',
-    })
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: document.querySelector('.section1'),
+      start: 'top top',
+      end: '+=200%',
+      scrub: 2,
+      pin: true,
+      anticipatePin: 1,
+      pinSpacing: true,
+      id: 'section1', // Add ID for better debugging
+    },
+    onStart: () => {
+      console.log('Section 1 animation started');
+    },
+    onComplete: () => {
+      console.log('Section 1 animation complete');
+    },
+    onReverseComplete: () => console.log('Section 1 reversed complete'),
+  });
+
+  tl.to(camera.position, { y: 50, z: -300, duration: 5 });
+  tl.to(renderer, { toneMappingExposure: 0.15, duration: 5 }, '<');
+  tl.to(sun.position, { y: 50, duration: 5 }, '<');
+
+  tl.to(camera.position, { x: -150, z: -325, duration: 5 });
+  tl.to(camera.rotation, { y: -0.46, duration: 5 }, '<');
+
+  tl.to(titleLetters, {
+    y: 20,
+    opacity: 1,
+    duration: 3.2,
+    stagger: 0.1,
+    ease: 'back.out(1.2)',
+    delay: 0.5,
+  });
+
+  tl.to('.subtitle', {
+    opacity: 1,
+    y: 0,
+    duration: 1.5,
+    ease: 'elastic.out(1, 0.5)',
+  })
     .to('.subtitle', {
       scale: 1.05,
       textShadow: '0 0 20px rgba(0, 240, 255, 0.6)',
@@ -99,7 +120,7 @@ const animateTextSection = () => {
       duration: 0.5,
     });
 
-  // Add subtle continuous floating animation to the subtitle
+  // This will stay as a separate animation since it's infinite
   gsap.to('.subtitle', {
     y: -10,
     duration: 2,
@@ -109,55 +130,11 @@ const animateTextSection = () => {
     delay: 5,
   });
 
-  return subtitleTimeline;
+  return tl;
 };
 
 // Section 2 animations
 const animateSection2 = () => {
-  const section2Tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '.section2',
-      start: 'top 80%',
-      end: 'bottom 20%',
-      toggleActions: 'play none none reverse',
-    },
-  });
-
-  section2Tl
-    .from('.section2 .section-title', {
-      opacity: 0,
-      y: 60,
-      duration: 1,
-      ease: 'power3.out',
-    })
-    .from(
-      '.section2::before',
-      {
-        opacity: 0,
-        scale: 0.9,
-        duration: 1.5,
-        ease: 'power2.out',
-      },
-      '-=0.7'
-    )
-    .to(
-      '.section2 .section-title',
-      {
-        textShadow: '0 0 25px rgba(0, 240, 255, 0.4)',
-        color: '#ffffff',
-        duration: 0.8,
-        ease: 'power1.inOut',
-        yoyo: true,
-        repeat: 1,
-      },
-      '+=0.2'
-    );
-
-  return section2Tl;
-};
-
-// Section 3 animations
-const animateSection3 = () => {
   // Helper function to safely split text while preserving HTML tags
   const splitTextIntoChars = (element) => {
     // Store the original innerHTML
@@ -202,7 +179,7 @@ const animateSection3 = () => {
 
   // Process text elements to split into characters
   const textElements = document.querySelectorAll(
-    '.section3 .article-title, .section3 .article-source, .section3 .article-subtitle, .section3 .article-text'
+    '.section2 .article-title, .section2 .article-source, .section2 .article-subtitle, .section2 .article-text'
   );
 
   textElements.forEach((element) => {
@@ -231,24 +208,28 @@ const animateSection3 = () => {
   });
 
   // Create the scroll-linked animation
-  const section3Tl = gsap.timeline({
+  const section2TL = gsap.timeline({
     scrollTrigger: {
-      trigger: '.section3',
-      start: 'top 75%',
-      end: '+=180%',
-      scrub: 5,
-      //   markers: true, // Set to true for debugging
+      trigger: '.section2',
+      start: 'top center',
+      end: 'bottom bottom',
+      scrub: true,
+      // markers: true, // Set to true for debugging
+      id: 'section2', // Add ID for better debugging
+    },
+    onStart: () => {
+      console.log('<<< Section 2 animation started');
     },
   });
 
   // Get all character spans
-  const allChars = gsap.utils.toArray('.section3 .char');
+  const allChars = gsap.utils.toArray('.section2 .char');
 
   // Set initial state - low opacity
   gsap.set(allChars, { opacity: 0.1 });
 
   // Animate characters to full opacity as scroll progresses
-  section3Tl.to(allChars, {
+  section2TL.to(allChars, {
     opacity: 1,
     stagger: {
       each: 0.015, // Very small stagger for smoother appearance
@@ -258,11 +239,11 @@ const animateSection3 = () => {
   });
 
   // Special animation for highlighted text
-  const highlights = document.querySelectorAll('.section3 .highlight');
+  const highlights = document.querySelectorAll('.section2 .highlight');
   highlights.forEach((highlight) => {
     const highlightChars = highlight.querySelectorAll('.char');
 
-    section3Tl.to(
+    section2TL.to(
       highlightChars,
       {
         color: '#ff5500', // Adjust to your preferred highlight color
@@ -270,7 +251,7 @@ const animateSection3 = () => {
         textShadow: '0 0 3px rgba(255,85,0,0.3)',
         duration: 0.3,
         stagger: {
-          each: 0.005,
+          each: 0.05,
           from: 'start',
         },
         ease: 'power2.inOut',
@@ -280,8 +261,8 @@ const animateSection3 = () => {
   });
 
   // Iframe animation
-  section3Tl.from(
-    '.section3 iframe',
+  section2TL.from(
+    '.section2 iframe',
     {
       opacity: 0,
       y: 30,
@@ -292,11 +273,8 @@ const animateSection3 = () => {
     '>-=0.2'
   );
 
-  return section3Tl;
+  return section2TL;
 };
-
-// Initialize animation when the DOM is loaded
-document.addEventListener('DOMContentLoaded', animateSection3);
 
 // Section 4 animations
 const animateSection4 = () => {
@@ -306,17 +284,22 @@ const animateSection4 = () => {
       start: 'top 75%',
       end: 'bottom 20%',
       toggleActions: 'play none none reverse',
+      id: 'section4', // Add ID for better debugging
     },
   });
 
   // Function to split text into spans for animation
   const splitTextIntoSpans = (selector) => {
     const element = document.querySelector(selector);
+    if (!element) return; // Guard clause to prevent errors
+
     const text = element.textContent;
     element.innerHTML = text
       .split('')
-      .map(
-        (char) => `<span class="char">${char === ' ' ? '&nbsp;' : char}</span>`
+      .map((char) =>
+        char === 'e'
+          ? `<br><span class="char">${char.toUpperCase()}</span>`
+          : `<span class="char">${char === ' ' ? '&nbsp;' : char}</span>`
       )
       .join('');
   };
@@ -343,7 +326,7 @@ const animateSection4 = () => {
         scale: 1.5,
         color: '#ff5252',
         textShadow: '0 0 30px rgba(255, 82, 82, 0.6)',
-        duration: 0.4,
+        duration: 0.2,
         yoyo: true,
         repeat: 1,
         ease: 'power1.inOut',
@@ -356,8 +339,8 @@ const animateSection4 = () => {
   section4Tl.to(
     '.section4 h4 a',
     {
-      backgroundColor: 'rgba(0, 240, 255, 0.15)',
-      boxShadow: '0 0 30px rgba(0, 240, 255, 0.4)',
+      backgroundColor: 'rgba(0, 240, 255, 0.5)',
+      boxShadow: '0 0 80px rgba(0, 240, 255, 0.4)',
       duration: 0.6,
       yoyo: true,
       repeat: 1,
@@ -371,146 +354,130 @@ const animateSection4 = () => {
 
 // Parallax effects for sections
 const createParallaxEffects = () => {
+  const parallaxTl = gsap.timeline();
+
   // Subtle parallax for section backgrounds
-  gsap.to('.section2::before', {
-    backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '.section2',
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: 1,
-    },
-  });
-
-  gsap.to('.section3', {
-    backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '.section3',
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: 1,
-    },
-  });
-
-  gsap.to('.section4::before', {
-    backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '.section4',
-      start: 'top bottom',
-      end: 'bottom top',
-      scrub: 1,
-    },
-  });
-};
-
-// Cursor animations
-const createCursorEffect = () => {
-  // Create a cursor follower element
-  const cursor = document.createElement('div');
-  cursor.className = 'cursor-follower';
-  document.body.appendChild(cursor);
-
-  // Style the cursor follower
-  gsap.set(cursor, {
-    width: '30px',
-    height: '30px',
-    borderRadius: '50%',
-    backgroundColor: 'rgba(0, 240, 255, 0.3)',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    zIndex: 9999,
-    pointerEvents: 'none',
-    mixBlendMode: 'difference',
-    boxShadow: '0 0 20px rgba(0, 240, 255, 0.5)',
-  });
-
-  // Create the cursor animation
-  document.addEventListener('mousemove', (e) => {
-    gsap.to(cursor, {
-      x: e.clientX - 15,
-      y: e.clientY - 15,
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-  });
-
-  // Highlight effects on hover for interactive elements
-  const interactiveElements = document.querySelectorAll(
-    'a, .highlight, .section-title, .final-message'
+  parallaxTl.add(
+    gsap.to('.section2::before', {
+      backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.section2',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        id: 'parallax-section2-before',
+      },
+    })
   );
-  interactiveElements.forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      gsap.to(cursor, {
-        scale: 1.5,
-        backgroundColor: 'rgba(255, 204, 0, 0.4)',
-        duration: 0.3,
-      });
-    });
 
-    el.addEventListener('mouseleave', () => {
-      gsap.to(cursor, {
-        scale: 1,
-        backgroundColor: 'rgba(0, 240, 255, 0.3)',
-        duration: 0.3,
-      });
-    });
-  });
+  parallaxTl.add(
+    gsap.to('.section2', {
+      backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.section2',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        id: 'parallax-section2',
+      },
+    }),
+    '<'
+  );
+
+  parallaxTl.add(
+    gsap.to('.section4::before', {
+      backgroundPosition: `${Math.random() * 10}% ${Math.random() * 10}%`,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.section4',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+        id: 'parallax-section4-before',
+      },
+    }),
+    '<'
+  );
+
+  return parallaxTl;
 };
 
 // Text reveal animations
 const createTextRevealEffects = () => {
+  const revealTl = gsap.timeline();
+
   // Subtitle text reveal animation
   const subtitleLetters = gsap.utils.toArray('.subtitle');
-  subtitleLetters.forEach((letter) => {
-    ScrollTrigger.create({
-      trigger: letter,
-      start: 'top 80%',
-      onEnter: () => {
-        gsap.to(letter, {
+  subtitleLetters.forEach((letter, index) => {
+    revealTl.add(
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: letter,
+            start: 'top 80%',
+            once: true,
+            id: `subtitle-reveal-${index}`,
+          },
+        })
+        .to(letter, {
           color: '#ffcc00',
           duration: 0.4,
           yoyo: true,
           repeat: 1,
-        });
-      },
-      once: true,
-    });
+        })
+    );
   });
 
   // Highlight text reveal animation
   const highlights = gsap.utils.toArray('.highlight');
-  highlights.forEach((highlight) => {
-    ScrollTrigger.create({
-      trigger: highlight,
-      start: 'top 80%',
-      onEnter: () => {
-        gsap.from(highlight, {
+  highlights.forEach((highlight, index) => {
+    revealTl.add(
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: highlight,
+            start: 'top 80%',
+            once: true,
+            id: `highlight-reveal-${index}`,
+          },
+        })
+        .from(highlight, {
           textShadow: '0 0 20px rgba(255, 204, 0, 0.8)',
           scale: 1.1,
           duration: 0.6,
           ease: 'power2.out',
-        });
-      },
-      once: true,
-    });
+        })
+    );
   });
+
+  return revealTl;
 };
 
 // Execute all animations
 document.addEventListener('DOMContentLoaded', () => {
   // Wait for fonts to load before starting animations
   document.fonts.ready.then(() => {
-    animateTextSection();
+    // Create all section timelines but don't run them yet
+    animateSection1();
     animateSection2();
-    animateSection3();
     animateSection4();
     createParallaxEffects();
-    createCursorEffect();
     createTextRevealEffects();
+
+    // Add all section timelines to master timeline with appropriate sequencing
+    // Note: We don't need to add the ScrollTrigger-controlled timelines to the master
+    // since they are already triggered by scroll events
+    // But we can ensure they have proper labels for debugging
+
+    // Add labels to the master timeline to mark where each section should begin
+    masterTimeline.addLabel('section1Start');
+    masterTimeline.addLabel('section2Start', 'section1Start+=3');
+    masterTimeline.addLabel('section4Start', 'section2Start+=3');
+
+    // Log the master timeline structure
+    console.log('Master timeline created with all sections');
 
     // Refresh ScrollTrigger to ensure all triggers work properly
     ScrollTrigger.refresh();
@@ -520,4 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Cleanup function for ScrollTrigger
 window.addEventListener('beforeunload', () => {
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  masterTimeline.kill();
 });
+
+// Export the master timeline for debugging purposes
+window.masterTimeline = masterTimeline;

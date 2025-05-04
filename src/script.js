@@ -4,11 +4,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { lilgui } from './lilgui';
 import { directionalLight, ambientLight, hemisphereLight } from './lights';
-import { generatePerspectiveCamera } from './camera';
-import { generateRenderer } from './renderer';
+import camera from './camera';
+import renderer from './renderer';
 import { canvas, mixer, sizes } from './constants';
 import scene from './scene';
 import { Water } from 'three/examples/jsm/objects/Water.js';
+import sun from './meshes/sun';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { particleSystemGenerator } from './utils/particleSystem';
@@ -35,8 +36,6 @@ const updateProgress = (percentage) => {
 gsap.registerPlugin(ScrollTrigger);
 
 // === CAMERA SETUP ===
-const camera = generatePerspectiveCamera(sizes);
-console.log('<<< original camera', camera);
 scene.add(camera);
 
 // === CONTROLS SETUP ===
@@ -45,7 +44,6 @@ controls.target.set(0, 0, 0);
 controls.enableDamping = true;
 
 // === RENDERER SETUP ===
-const renderer = generateRenderer(canvas, sizes);
 renderer.toneMapping = THREE.CineonToneMapping;
 renderer.toneMappingExposure = 0.05;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -85,21 +83,9 @@ scene.add(
 );
 
 // === SUN AND LIGHTS ===
-scene.add(ambientLight, directionalLight);
+scene.add(ambientLight, directionalLight, hemisphereLight);
 
-// Helper for Ambient Light
-const ambientLightHelper = new THREE.HemisphereLightHelper(hemisphereLight, 5);
-scene.add(ambientLightHelper);
-
-// Create Sun Mesh
-const sunGeometry = new THREE.SphereGeometry(40, 32, 32);
-const sunMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffcc33,
-  emissive: 0xffa500,
-  emissiveIntensity: 1.5,
-});
-const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-sun.position.set(0, -152, 300);
+// Add Sun Mesh
 
 scene.add(sun);
 
@@ -150,48 +136,6 @@ const smokeEffect = particleSystemGenerator({
   rate: 15,
   texture: '/smoke.png',
 });
-
-// // === MOUSE PARALLAX EFFECT ===
-// const targetPosition = new THREE.Vector3(0, 0, -200); // The point where the camera will orbit around
-
-// // Update target position based on mouse movement
-// window.addEventListener('mousemove', (event) => {
-//   const mouseX = (event.clientX / sizes.width) * 2 - 1; // Normalize mouse X to range [-1, 1]
-//   const easing = 0.05; // Adjust easing factor for smooth movement
-
-//   // Move the camera's x position slightly based on mouse movement
-//   camera.position.x += (mouseX * 10 - camera.position.x) * easing; // Scale mouseX by 10 for subtle movement
-//   // Keep the camera looking at the target position
-//   camera.lookAt(targetPosition);
-// });
-
-// // === GSAP ANIMATIONS ===
-// let slightOrbitingEnabled = true;
-
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: document.querySelector('.section1'),
-    start: 'top center',
-    end: '+=900%',
-    scrub: 5,
-    pin: true,
-    // markers: true,  // used to show when the scroll trigger starts and ends
-  },
-  onStart: () => {
-    console.log('animation started');
-  },
-  onComplete: () => {
-    console.log('animation complete');
-  },
-  onReverseComplete: () => console.log('reversed complete'),
-});
-
-tl.to(camera.position, { y: 50, z: -300, duration: 5 });
-tl.to(renderer, { toneMappingExposure: 0.15, duration: 5 }, '<');
-tl.to(sun.position, { y: 50, duration: 5 }, '<');
-
-tl.to(camera.position, { x: -150, z: -325, duration: 5 });
-tl.to(camera.rotation, { y: -0.46, duration: 5 }, '<');
 
 // === POSTPROCESSING WITH SELECTIVE BLOOM ===
 const composer = new EffectComposer(renderer);
