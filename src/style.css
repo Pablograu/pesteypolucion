@@ -416,6 +416,11 @@ iframe {
   padding-top: 1.5rem;
 }
 
+.airenet-button {
+  display: block;
+  margin: 1rem;
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
   section {
