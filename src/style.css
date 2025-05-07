@@ -412,6 +412,10 @@ iframe {
   display: none;
 }
 
+.final-message span {
+  padding-top: 1.5rem;
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
   section {

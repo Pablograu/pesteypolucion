@@ -212,7 +212,7 @@ const animateSection2 = () => {
     scrollTrigger: {
       trigger: '.section2',
       start: 'top center',
-      end: 'bottom bottom',
+      end: 'bottom bottom+=50',
       scrub: true,
       // markers: true, // Set to true for debugging
       id: 'section2', // Add ID for better debugging
