@@ -279,9 +279,9 @@ let currentFps = 60;
 
 const smokeEffect = particleSystemGenerator({
   camera,
-  emitters: activeEmitters, // Only pass active emitters
+  emitters: emitters, // Only pass active emitters
   parent: scene,
-  rate: () => particleRate, // Dynamic rate based on performance
+  rate: particleRate, // Dynamic rate based on performance
   texture: '/smoke.png',
 });
 
